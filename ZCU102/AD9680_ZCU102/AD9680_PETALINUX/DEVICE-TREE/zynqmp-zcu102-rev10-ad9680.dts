@@ -1,0 +1,176 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Analog Devices AD9695 / AD9689 ANALOG-TO-DIGITAL CONVERTER
+ * https://wiki.analog.com/resources/eval/ad9208-3000ebz
+ * https://wiki.analog.com/resources/tools-software/linux-drivers/iio-adc/ad9208
+ *
+ * hdl_project: <ad9695_fmc/zcu102>
+ * board_revision: <>
+ *
+ * Copyright (C) 2019-2022 Analog Devices Inc.
+ */
+
+#include "zynqmp-zcu102-rev1.0.dts"
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/iio/adc/adi,ad9208.h>
+#include <dt-bindings/jesd204/adxcvr.h>
+
+&i2c1 {
+	i2c-mux@75 {
+		i2c@0 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+
+			eeprom@50 {
+				compatible = "at24,24c02";
+				reg = <0x50>;
+			};
+		};
+	};
+};
+
+/ {
+	clocks {
+		ad9680_clkin: clock@0 {
+			#clock-cells = <0>;
+			compatible = "adjustable-clock";
+			clock-frequency = <1000000000>;
+			clock-accuracy = <1000000000>;
+			clock-output-names = "ad9680_clk";
+		};
+		device_clk: clock@1 {
+			#clock-cells = <0>;
+			compatible = "adjustable-clock";
+			clock-frequency = <250000000>;
+			clock-accuracy = <1000000000>;
+			clock-output-names = "dev_clk";
+		};
+		sysref: clock@2 {
+			#clock-cells = <0>;
+			compatible = "adjustable-clock";
+			clock-frequency = <7812500>;
+			clock-accuracy = <1000000000>;
+			clock-output-names = "adc_sysref";
+		};
+	};
+	fpga_axi: fpga-axi@0 {
+		interrupt-parent = <&gic>;
+		compatible = "simple-bus";
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		ranges = <0 0 0 0xffffffff>;
+
+		rx_dma: rx-dmac@9c400000 {
+			#dma-cells = <1>;
+			compatible = "adi,axi-dmac-1.00.a";
+			reg = <0x9c400000 0x1000>;
+			interrupts = <0 109 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&zynqmp_clk 71>;
+		};
+
+		axi_ad9680_core: axi-ad9680-hpc@84a00000 {
+			compatible = "adi,axi-ad9680-1.0";
+			reg = <0x84a00000 0x2000>;
+			dmas = <&rx_dma 0>;
+			dma-names = "rx";
+			spibus-connected = <&adc0_ad9680>;
+
+		};
+
+		axi_ad9680_jesd: axi-jesd204-rx@84aa0000 {
+			compatible = "adi,axi-jesd204-rx-1.0";
+			reg = <0x84aa0000 0x4000>;
+			interrupts = <0 108 IRQ_TYPE_LEVEL_HIGH>;
+
+			clocks = <&zynqmp_clk 71>, <&device_clk>, <&axi_ad9680_adxcvr 0>;
+			clock-names = "s_axi_aclk", "device_clk", "lane_clk";
+
+			adi,octets-per-frame = <1>;
+			adi,frames-per-multiframe = <32>;
+			adi,subclass = <1>;
+
+			#clock-cells = <0>;
+			clock-output-names = "jesd_adc_lane_clk";
+		};
+
+		axi_ad9680_adxcvr: axi-adxcvr-rx@84a60000 {
+			compatible = "adi,axi-adxcvr-1.0";
+			reg = <0x84a60000 0x10000>;
+
+			clocks = <&device_clk>, <&device_clk>;
+			clock-names = "conv", "div40";
+
+			adi,sys-clk-select = <XCVR_QPLL>;
+			adi,out-clk-select = <XCVR_REFCLK>;
+			adi,use-lpm-enable;
+
+			#clock-cells = <1>;
+			clock-output-names = "adc_gt_clk", "rx_out_clk";
+		};
+
+		axi_sysid_0: axi-sysid-0@85000000 {
+			compatible = "adi,axi-sysid-1.00.a";
+			reg = <0x85000000 0x2000>;
+		};
+	};
+};
+&spi0 {
+	status = "okay";
+	adc0_ad9680: ad9680@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "adi,ad9680";
+		
+		powerdown-gpios = <&gpio 116 0>;
+		fastdetect-a-gpios = <&gpio 113 0>;
+		fastdetect-b-gpios = <&gpio 114 0>;
+
+		spi-cpol;
+		spi-cpha;
+		spi-max-frequency = <10000000>;
+		adi,spi-3wire-enable;
+		reg = <0>;
+
+		/* Content of Registers: 0x16, 0x18, 0x19, 0x1A, 0x30, 0x11A, 0x934, 0x935 */
+		adi,sfdr-optimization-config = <0xE 0xA0 0x50 0x09 0x18 0x00 0x1F 0x04>;
+
+		clocks = <&axi_ad9680_jesd>, <&ad9680_clkin>, <&sysref>;
+		clock-names = "jesd_adc_clk", "adc_clk", "adc_sysref";
+
+
+		adi,powerdown-mode = <AD9208_PDN_MODE_POWERDOWN>;
+
+		adi,sampling-frequency = /bits/ 64 <1000000000>;
+		adi,input-clock-divider-ratio = <1>;
+
+		adi,sysref-lmfc-offset = <0>;
+		adi,sysref-pos-window-skew = <0>;
+		adi,sysref-neg-window-skew = <0>;
+		adi,sysref-mode = <AD9208_SYSREF_CONT>;
+		adi,sysref-nshot-ignore-count = <0>;
+
+		/* JESD204 parameters */
+
+		adi,converters-per-device = <2>;	/* JESD204 (M) */
+		adi,lanes-per-device = <4>;		/* JESD204 (L) */
+		adi,octets-per-frame = <1>;		/* JESD204 (F) */
+		adi,frames-per-multiframe = <32>;	/* JESD204 (K) */
+		adi,converter-resolution = <14>;	/* JESD204 (N) */
+		adi,bits-per-sample = <16>;		/* JESD204 (N') */
+		adi,control-bits-per-sample = <2>;	/* JESD204 (CS) */
+		adi,subclass = <1>;			/* JESD204 (SUBCLASSV) */
+
+		/* DDC setup */
+
+		adi,ddc-channel-number = <AD9208_FULL_BANDWIDTH_MODE>;
+
+		ad9208_ddc0: channel@0 {
+			reg = <0>;
+			adi,decimation = <2>;
+			adi,nco-mode-select = <AD9208_NCO_MODE_VIF>;
+			adi,nco-channel-carrier-frequency-hz = /bits/ 64 <70000000>;
+			adi,nco-channel-phase-offset = /bits/ 64 <0>;
+		};
+	};
+};
