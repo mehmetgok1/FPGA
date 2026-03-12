@@ -1,139 +1,156 @@
-# [cite_start]Xilinx ISE 14.7 Installation Guide (Windows 11 + WSL2 + Docker) [cite: 1]
+# Xilinx ISE 14.7 Installation Guide (Windows 11 + WSL2 + Docker)
 
-[cite_start]**Author:** Mehmet Gök [cite: 2]
-[cite_start]**Institution:** Boğaziçi University Department of Electrical & Electronics Engineering [cite: 3]
-[cite_start]**Document Date:** February 28, 2026 [cite: 4]
-[cite_start]**Revision:** 1.0 [cite: 5]
+**Author:** Mehmet Gök
+**Institution:** Boğaziçi University Department of Electrical & Electronics Engineering
+**Document Date:** February 28, 2026
+**Revision:** 1.0
 
 ---
 
 ## 1. Prerequisites and Setup
 
-* [cite_start]Install Visual Studio Code from the Microsoft Store or download it from: `https://code.visualstudio.com/download` [cite: 6]
-* Open VS Code. [cite_start]From the top menu, click on “Terminal” and select “New Terminal.” [cite: 7]
-* [cite_start]In the terminal, type: [cite: 8]
-  * [cite_start]`wsl --install` [cite: 9]
-  * [cite_start]This process may take some time. [cite: 10]
-* After installation completes, reboot your system. [cite_start]Open the VS Code again and create a new terminal. [cite: 11]
-  * [cite_start]Run the following command: `wsl --install -d Ubuntu` [cite: 12]
-  * Ubuntu will be installed. [cite_start]You will be prompted to create a username and password. [cite: 13]
-* [cite_start]Download Docker Desktop for Windows from: `https://docs.docker.com/desktop/setup/install/windows-install/` During installation, make sure the WSL2 option is enabled. [cite: 14]
-* [cite_start]Restart your PC after installation. [cite: 15]
+* Install Visual Studio Code from the Microsoft Store or download it from: `https://code.visualstudio.com/download`
+* Open VS Code. From the top menu, click on “Terminal” and select “New Terminal.”
+![VSCODE_INSTALLED](images/image2.png)
+
+* In the terminal, type:
+  * `wsl --install`
+  * This process may take some time.
+* After installation completes, reboot your system. Open the VS Code again and create a new terminal.
+  * Run the following command: `wsl --install -d Ubuntu`
+  * Ubuntu will be installed. You will be prompted to create a username and password.
+* Download Docker Desktop for Windows from: `https://docs.docker.com/desktop/setup/install/windows-install/` During installation, make sure the WSL2 option is enabled.
+* Restart your PC after installation.
 
 ## 2. Downloading Xilinx ISE 14.7
 
-* [cite_start]Download Xilinx ISE 14.7 from: `https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/archive-ise.html` Create a free account and download: `Xilinx_ISE_DS_Lin_14.7_1015_1.tar` (Full Linux installer) [cite: 16]
-* [cite_start]Also generate a license file from: [cite: 17]
-* [cite_start]`https://account.amd.com/en/forms/license/license-form.html` [cite: 18]
-* [cite_start]Select “ISE WebPack” and generate a node-locked license. [cite: 19]
-* [cite_start]The license file will be sent to your email. [cite: 20]
+* Download Xilinx ISE 14.7 from: `https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools/archive-ise.html` Create a free account and download: `Xilinx_ISE_DS_Lin_14.7_1015_1.tar` (Full Linux installer)
+![VSCODE_INSTALLED](images/image3.png)
+* Also generate a license file from:
+* `https://account.amd.com/en/forms/license/license-form.html`
+![VSCODE_INSTALLED](images/image4.png)
+* Select “ISE WebPack” and generate a node-locked license.
+* The license file will be sent to your email. 
+* if you can't file here go to manage licenses and download from there
 
 ## 3. Docker Configuration
 
-* Open Docker Desktop → Settings → Resources → WSL Integration. [cite_start]Enable Ubuntu integration and click “Apply & Restart.” [cite: 21]
-* [cite_start]In VS Code, open a terminal and type: [cite: 22, 23]
-  * [cite_start]`wsl` [cite: 24]
-* You are now inside Ubuntu. [cite_start]Copy the installer: [cite: 25]
-  * [cite_start]`cd` #this will take you to home of ubuntu user [cite: 26]
-  * [cite_start]`cp /mnt/c/Users/<YourUsername>/Downloads/Xilinx_ISE_DS_Lin_14.7_1015_1.tar .` [cite: 27]
-* [cite_start]Copy the license file: [cite: 28]
-  * [cite_start]`cp /mnt/c/Users/<YourUsername>/Downloads/Xilinx.lic .` [cite: 29]
-* [cite_start]Verify files using (type in the terminal): [cite: 30]
-  * [cite_start]`ls` [cite: 31]
-* [cite_start]Verify Docker using (type in the terminal): [cite: 32]
-  * [cite_start]`docker --version` [cite: 33]
+* Open Docker Desktop → Settings → Resources → WSL Integration. Enable Ubuntu integration and click “Apply & Restart.”
+![VSCODE_INSTALLED](images/image5.png)
+* In VS Code, open a terminal and type:
+  * `wsl`
+* You are now inside Ubuntu. Copy the installer:
+  * `cd` #this will take you to home of ubuntu user
+  * `cp /mnt/c/Users/`<**YourUsername**>`/Downloads/Xilinx_ISE_DS_Lin_14.7_1015_1.tar .`
+* Copy the license file:
+  * `cp /mnt/c/Users/`<**YourUsername**>`/Downloads/Xilinx.lic .`
+* Verify files using (type in the terminal):
+  * `ls`
+* Verify Docker using (type in the terminal):
+  * `docker --version`
 
 ## 4. Workspace Creation and Dockerfile
 
-* [cite_start]Create working directory: [cite: 34, 35]
-  * [cite_start]`mkdir -p ~/tools/ISE` [cite: 36]
-  * [cite_start]`mv ~/Xilinx* ~/tools/ISE/` [cite: 37]
-  * [cite_start]`cd ~/tools/ISE` [cite: 38]
-* [cite_start]Create a Dockerfile by simply copy pasting below in terminal: [cite: 39]
-  * [cite_start]`cat <<EOF > Dockerfile` [cite: 40]
-  * [cite_start]`# Use Ubuntu 16.04 (Compatible with ISE era tools)` [cite: 41]
-  * [cite_start]`FROM ubuntu:16.04` [cite: 42]
-  * [cite_start]`# Enable 32-bit architecture (ISE is a 32-bit app disguised as 64-bit)` [cite: 43]
-  * [cite_start]`RUN dpkg --add-architecture i386` [cite: 44]
-  * [cite_start]`# Install dependencies (Fixes missing library errors like libXi.so, libXrender, etc.)` [cite: 45]
-  * [cite_start]`RUN apt-get update && apt-get install -y \` [cite: 46]
-  * [cite_start]`build-essential \` [cite: 47]
-  * [cite_start]`git \` [cite: 48]
-  * [cite_start]`sudo \` [cite: 49]
-  * [cite_start]`locales \` [cite: 50]
-  * [cite_start]`libx11-6 libx11-6:i386 \` [cite: 51]
-  * [cite_start]`libglib2.0-0 libglib2.0-0:i386 \` [cite: 52]
-  * [cite_start]`libsm6 libsm6:i386 \` [cite: 53]
-  * [cite_start]`libxrender1 libxrender1:i386 \` [cite: 54]
-  * [cite_start]`libfontconfig1 libfontconfig1:i386 \` [cite: 55]
-  * [cite_start]`libxext6 libxext6:i386 \` [cite: 56]
-  * [cite_start]`libxi6 libxi6:i386 \` [cite: 57]
-  * [cite_start]`libxrandr2 libxrandr2:i386 \` [cite: 58]
-  * [cite_start]`libxcursor1 libxcursor1:i386 \` [cite: 59]
-  * [cite_start]`libxinerama1 libxinerama1:i386 \` [cite: 60]
-  * [cite_start]`libxft2:i386 \` [cite: 61]
-  * [cite_start]`libxtst6:i386 \` [cite: 62]
-  * [cite_start]`libncurses5:i386 \` [cite: 63]
-  * [cite_start]`libstdc++6:i386 \` [cite: 64]
-  * [cite_start]`xutils-dev \` [cite: 65]
-  * [cite_start]`&& rm -rf /var/lib/apt/lists/*` [cite: 66]
-  * [cite_start]`# Create a 'developer' user to avoid running as root` [cite: 67]
-  * [cite_start]`RUN useradd -m -s /bin/bash developer && \` [cite: 68]
-  * [cite_start]`echo "developer ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/developer` [cite: 69]
-  * [cite_start]`# Set Locale` [cite: 70]
-  * [cite_start]`RUN locale-gen en_US.UTF-8` [cite: 71]
-  * [cite_start]`ENV LANG en_US.UTF-8` [cite: 72]
-  * [cite_start]`ENV LANGUAGE en_US:en` [cite: 73]
-  * [cite_start]`ENV LC_ALL en_US.UTF-8` [cite: 74]
-  * [cite_start]`USER developer` [cite: 75]
-  * [cite_start]`WORKDIR /home/developer` [cite: 76]
-  * [cite_start]`EOF` [cite: 77]
-* [cite_start]Type “ls“ you should see Dockerfile if everything corrects [cite: 78]
-* [cite_start]Build Docker image (type below in terminal with order): [cite: 79]
-  * [cite_start]`sudo usermod -aG docker $USER` [cite: 80]
-  * [cite_start]`newgrp docker` [cite: 81]
-  * `docker build -t ise-14.7 .    #will take time do not forget “.” At the end` [cite: 82]
-  * [cite_start]`mkdir -p ~/xilinx-install` [cite: 83]
-  * [cite_start]`sudo apt update && sudo apt install x11-xserver-utils -y` [cite: 84]
-  * [cite_start]`xhost + #type your password if ask` [cite: 85]
+* Create working directory:
+  * `mkdir -p ~/tools/ISE`
+  * `mv ~/Xilinx* ~/tools/ISE/`
+  * `cd ~/tools/ISE`
+* Create a Dockerfile by simply copy pasting below in terminal:
+  * `cat <<EOF > Dockerfile`
+  * `# Use Ubuntu 16.04 (Compatible with ISE era tools)`
+  * `FROM ubuntu:16.04`
+  * `# Enable 32-bit architecture (ISE is a 32-bit app disguised as 64-bit)`
+  * `RUN dpkg --add-architecture i386`
+  * `# Install dependencies (Fixes missing library errors like libXi.so, libXrender, etc.)`
+  * `RUN apt-get update && apt-get install -y \`
+  * `build-essential \`
+  * `git \`
+  * `sudo \`
+  * `locales \`
+  * `libx11-6 libx11-6:i386 \`
+  * `libglib2.0-0 libglib2.0-0:i386 \`
+  * `libsm6 libsm6:i386 \`
+  * `libxrender1 libxrender1:i386 \`
+  * `libfontconfig1 libfontconfig1:i386 \`
+  * `libxext6 libxext6:i386 \`
+  * `libxi6 libxi6:i386 \`
+  * `libxrandr2 libxrandr2:i386 \`
+  * `libxcursor1 libxcursor1:i386 \`
+  * `libxinerama1 libxinerama1:i386 \`
+  * `libxft2:i386 \`
+  * `libxtst6:i386 \`
+  * `libncurses5:i386 \`
+  * `libstdc++6:i386 \`
+  * `xutils-dev \`
+  * `&& rm -rf /var/lib/apt/lists/*`
+  * `# Create a 'developer' user to avoid running as root`
+  * `RUN useradd -m -s /bin/bash developer && \`
+  * `echo "developer ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/developer`
+  * `# Set Locale`
+  * `RUN locale-gen en_US.UTF-8`
+  * `ENV LANG en_US.UTF-8`
+  * `ENV LANGUAGE en_US:en`
+  * `ENV LC_ALL en_US.UTF-8`
+  * `USER developer`
+  * `WORKDIR /home/developer`
+  * `EOF`
+* Type “ls“ you should see Dockerfile if everything corrects
+* Build Docker image (type below in terminal with order):
+  * `sudo usermod -aG docker $USER`
+  * `newgrp docker`
+  * `docker build -t ise-14.7 .    #will take time do not forget “.” At the end`
+  * `mkdir -p ~/xilinx-install`
+  * `sudo apt update && sudo apt install x11-xserver-utils -y`
+  * `xhost + #type your password if ask`
 
 ## 5. Installing Xilinx ISE Inside Docker
 
-* [cite_start]Run the installer inside Docker [cite: 86, 87]
-* [cite_start]-------------------------command starts---------------------------  `docker run -it --rm --net=host -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v $(pwd)/Xilinx_ISE_DS_Lin_14.7_1015_1.tar:/installer.tar -v ~/xilinx-install:/opt/Xilinx ise-14.7 bash -c "tar -xf /installer.tar; cd Xilinx_ISE_DS_Lin_14.7_1015_1; ./xsetup"` [cite: 88]
-* [cite_start]-------------------------command ends---------------------------  this will take time, if everything successful you will see [cite: 89]
-* [cite_start]Do NOT install cable drivers. [cite: 90]
-* [cite_start]After above finished we need to get our mac address simply copy paste below [cite: 91]
-  * [cite_start]`cp Xilinx.lic ~/xilinx-install/` [cite: 92]
-  * [cite_start]be sure you are still in `~/tools/ISE/` [cite: 93]
-* [cite_start]after this simply copy the below command [cite: 94]
-* [cite_start]-------------------------command starts--------------------------- [cite: 95]
-  * [cite_start]`alias ise='xhost +local:docker > /dev/null; docker run -it --rm --net=host -e DISPLAY=$DISPLAY -e XILINXD_LICENSE_FILE=/opt/Xilinx/Xilinx.lic -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v $HOME/xilinx-install:/opt/Xilinx -v $(pwd):/work -w /work ise-14.7 bash -c "source /opt/Xilinx/14.7/ISE_DS/settings64.sh && ise"'` [cite: 96]
-* [cite_start]-------------------------command ends--------------------------- [cite: 97]
-* [cite_start]Then you can type [cite: 98]
-  * [cite_start]`ise` [cite: 99]
-* [cite_start]then terminal leaves and gui will welcome you as below : [cite: 100]
-* [cite_start]This is the main place we develop our hdl codes. [cite: 101]
+* Run the installer inside Docker
+* -------------------------command starts--------------------------- 
+* `docker run -it --rm --net=host -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v $(pwd)/Xilinx_ISE_DS_Lin_14.7_1015_1.tar:/installer.tar -v ~/xilinx-install:/opt/Xilinx ise-14.7 bash -c "tar -xf /installer.tar; cd Xilinx_ISE_DS_Lin_14.7_1015_1; ./xsetup"`
+* -------------------------command ends---------------------------
+
+  this will take time, if everything successful you will see
+  ![Installation Success](images/imagef.png)
+  ![Installation Success](images/image10.png)
+* Do NOT install cable drivers.
+  ![Installation Success](images/image11.png)
+* After above finished we need to get our license simply copy paste below
+  * be sure you are still in `~/tools/ISE/`
+  * `cp Xilinx.lic ~/xilinx-install/`
+* after this simply copy the below command
+* -------------------------command starts---------------------------
+  * `alias ise='xhost +local:docker > /dev/null; docker run -it --rm --net=host -e DISPLAY=$DISPLAY -e XILINXD_LICENSE_FILE=/opt/Xilinx/Xilinx.lic -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v $HOME/xilinx-install:/opt/Xilinx -v $(pwd):/work -w /work ise-14.7 bash -c "source /opt/Xilinx/14.7/ISE_DS/settings64.sh && ise"'`
+* -------------------------command ends---------------------------
+* Then you can type
+  * `ise`
+* then terminal leaves and gui will welcome you as below :
+  ![ISE GUI](images/image9.png)
+* This is the main place we develop our hdl codes.
 
 ## 6. Creating FPGA Projects
 
-* [cite_start]I strongly suggest creating separate folder for this projects like simply type `mkdir -p ~/fpga_project` [cite: 102]
-* [cite_start]`Cd ~/fgpa_project` [cite: 103]
-* [cite_start]Type `ise` afterwards projects will be created in this folder [cite: 104]
-* [cite_start]Note: every time you open wsl first it will open terminal at /mnt/c…. kind of place [cite: 105]
-* [cite_start]Simply write `cd` and enter it will guide you to ubuntu home directory. [cite: 106]
+* I strongly suggest creating separate folder for this projects like simply type `mkdir -p ~/fpga_project`
+* `Cd ~/fgpa_project`
+* Type `ise` afterwards projects will be created in this folder
+* Note: every time you open wsl first it will open terminal at /mnt/c…. kind of place
+* Simply write `cd` and enter it will guide you to ubuntu home directory.
 
 ## 7. Connecting Hardware (Digilent Adept)
 
-* [cite_start]Switch back to host machine your windows version and go to site below: [cite: 107, 108]
-* [cite_start]`https://digilent.com/reference/software/adept/start?srsltid=AfmBOoownrZvrs34LBzzZEgiPC7cWKAD4nv8F__mhaoblDF1wesVRRA5` [cite: 109]
-* download windows version of digilent adept2 from this link [cite: 110]
-* [cite_start]V2.27.9-2 retired And install it by click next next next [cite: 111]
-* [cite_start]After this simply type adept in windows search bar [cite: 112]
-* Connect nexsys via usb to pc it should show up as above and from here you can simply upload .bit files [cite: 113]
-* [cite_start]But here comes to question how can I found my bit files which is inside wsl [cite: 114]
-* [cite_start]Simply say browse in above screen [cite: 115]
-* double click in search bar and type `\\wsl$` then enter u can see wsl distros there open ubuntu-> home -> Bogazici -> wherever path you put your project [cite: 116]
-* [cite_start]Bogazici in your case will be your username [cite: 117]
-* [cite_start]Upload and run [cite: 118]
-* Congrats. Done should be light up near red button. [cite: 119]
+* Switch back to host machine your windows version and go to site below:
+* `https://digilent.com/reference/software/adept/start?srsltid=AfmBOoownrZvrs34LBzzZEgiPC7cWKAD4nv8F__mhaoblDF1wesVRRA5`
+* download windows version of digilent adept2 from this link
+* ![Adept Connection](images/image14.png)
+* V2.27.9-2 retired And install it by click next next next
+* After this simply type adept in windows search bar
+* ![Adept Connection](images/image15.png)
+* Connect nexsys via usb to pc it should show up as above and from here you can simply upload .bit files
+* But here comes to question how can I found my bit files which is inside wsl
+* Simply say browse in above screen
+  ![Browse WSL](images/image12.png)
+* double click in search bar and type `\\wsl$` then enter u can see wsl distros there open ubuntu-> home -> Bogazici -> wherever path you put your project
+* Bogazici in your case will be your username
+* Upload and run
+* Congrats. Done should be light up near red button.
+
