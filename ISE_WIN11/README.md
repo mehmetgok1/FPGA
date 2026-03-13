@@ -120,7 +120,7 @@
   * `cp Xilinx.lic ~/xilinx-install/`
 * after this simply copy the below command
 * -------------------------command starts---------------------------
-  * `alias ise='xhost +local:docker > /dev/null; docker run -it --rm --net=host -e DISPLAY=$DISPLAY -e XILINXD_LICENSE_FILE=/opt/Xilinx/Xilinx.lic -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v $HOME/xilinx-install:/opt/Xilinx -v $(pwd):/work -w /work ise-14.7 bash -c "source /opt/Xilinx/14.7/ISE_DS/settings64.sh && ise"'`
+  * echo "alias ise='xhost +local:docker > /dev/null; docker run -it --rm --net=host -e DISPLAY=\$DISPLAY -e XILINXD_LICENSE_FILE=/opt/Xilinx/Xilinx.lic -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v \$HOME/xilinx-install:/opt/Xilinx -v \$(pwd):/work -w /work ise-14.7 bash -c \"source /opt/Xilinx/14.7/ISE_DS/settings64.sh && ise\"'" >> ~/.bashrc
 * -------------------------command ends---------------------------
 * Then you can type
   * `ise`
