@@ -144,6 +144,7 @@ source ~/.bashrc
 * Switch back to host machine your windows version and go to site below:
 * `https://digilent.com/reference/software/adept/start?srsltid=AfmBOoownrZvrs34LBzzZEgiPC7cWKAD4nv8F__mhaoblDF1wesVRRA5`
 * download windows version of digilent adept2 from this link
+* Note: do not install adept runtime create account and download system latest one (it requires digilent account)
 * ![Adept Connection](images/image14.png)
 * V2.27.9-2 retired And install it by click next next next
 * After this simply type adept in windows search bar
